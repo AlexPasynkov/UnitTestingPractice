@@ -9,6 +9,8 @@ import org.junit.Assert;
 import static com.alexlearn.unittestingpractice.repository.NoteRepository.INSERT_FAILURE;
 import static com.alexlearn.unittestingpractice.repository.NoteRepository.INSERT_SUCCESS;
 import static com.alexlearn.unittestingpractice.repository.NoteRepository.NOTE_TITLE_NULL;
+import static com.alexlearn.unittestingpractice.repository.NoteRepository.UPDATE_FAILURE;
+import static com.alexlearn.unittestingpractice.repository.NoteRepository.UPDATE_SUCCESS;
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -119,6 +121,72 @@ public class NoteRepositoryTest {
                 final Note note = new Note(TestUtil.TEST_NOTE_1);
                 note.setTitle(null);
                 noteRepository.insertNote(note);
+            }
+        });
+
+        assertEquals(NOTE_TITLE_NULL, exception.getMessage());
+    }
+
+    /*
+        update note
+        verify their correct method is called
+        confirm the observer is triggered
+        confirm the number of rows updated
+     */
+
+    @Test
+    void updateNote_returnNumRowsUpdated() throws Exception {
+
+        //Arrange
+        final int updatedRow = 1;
+        when(noteDao.updateNote(any(Note.class))).thenReturn(Single.just(updatedRow));
+
+        //Act
+        final Resource<Integer> returnedValue = noteRepository.updateNote(NOTE_1).blockingFirst();
+
+        //Assert
+        verify(noteDao).updateNote(any(Note.class));
+        verifyNoMoreInteractions(noteDao);
+
+        assertEquals(Resource.success(updatedRow, UPDATE_SUCCESS), returnedValue);
+    }
+
+    /*
+        update note
+        failure (-1)
+     */
+
+    @Test
+    void updateNote_returnFailure() throws Exception {
+        //Arrange
+        final int failedInsert = -1;
+        final Single<Integer> returnedData = Single.just(failedInsert);
+        when(noteDao.updateNote(any(Note.class))).thenReturn(returnedData);
+
+        //Act
+        final Resource<Integer> returnedValue = noteRepository.updateNote(NOTE_1).blockingFirst();
+
+        //Assert
+        verify(noteDao).updateNote(any(Note.class));
+        verifyNoMoreInteractions(noteDao);
+
+        assertEquals(Resource.error(null, UPDATE_FAILURE), returnedValue);
+    }
+
+    /*
+        update note
+        null title
+        throw exception
+     */
+
+    @Test
+    void updateNote_nullTitle_throwException() throws Exception {
+        Exception exception = assertThrows(Exception.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                final Note note = new Note(TestUtil.TEST_NOTE_1);
+                note.setTitle(null);
+                noteRepository.updateNote(note);
             }
         });
 
