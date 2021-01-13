@@ -17,7 +17,6 @@ public abstract class NoteDatabaseTest {
     //System under test
     private NoteDatabase noteDatabase;
 
-
     public NoteDao getNoteDao() {
         return noteDatabase.getNoteDao();
     }

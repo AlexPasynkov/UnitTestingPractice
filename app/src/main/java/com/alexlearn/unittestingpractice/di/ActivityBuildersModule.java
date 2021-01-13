@@ -1,6 +1,6 @@
 package com.alexlearn.unittestingpractice.di;
 
-import com.alexlearn.unittestingpractice.NotesListActivity;
+import com.alexlearn.unittestingpractice.ui.noteslist.NotesListActivity;
 
 import dagger.Module;
 import dagger.android.ContributesAndroidInjector;

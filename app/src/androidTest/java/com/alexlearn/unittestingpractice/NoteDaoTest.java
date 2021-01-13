@@ -28,7 +28,6 @@ public class NoteDaoTest extends NoteDatabaseTest {
     /*
         Insert, Read, Delete
      */
-
     @Test
     public void insertReadDelete() throws Exception {
         Note note = new Note(TestUtil.TEST_NOTE_1);
