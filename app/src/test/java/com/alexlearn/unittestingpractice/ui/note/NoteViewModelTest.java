@@ -22,6 +22,7 @@ import io.reactivex.Single;
 import io.reactivex.internal.operators.single.SingleToFlowable;
 
 import static com.alexlearn.unittestingpractice.repository.NoteRepository.INSERT_SUCCESS;
+import static com.alexlearn.unittestingpractice.repository.NoteRepository.UPDATE_SUCCESS;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -127,12 +128,47 @@ public class NoteViewModelTest {
         //Act
         assertThrows(Exception.class, new Executable() {
             @Override
+            //Assert
             public void execute() throws Throwable {
                 noteViewModel.setNote(note);
             }
         });
+    }
 
+    /*
+    insert a update note and observe a row returned
+     */
+
+    @Test
+    void updateNote_returnRow() throws Exception {
+        //Arrange
+        Note note = new Note(TestUtil.TEST_NOTE_1);
+        LiveDataTestUtil<Resource<Integer>> liveDataTestUtil = new LiveDataTestUtil<>();
+        final int updatedRow = 1;
+        Flowable<Resource<Integer>> returnedData = SingleToFlowable.just(Resource.success(updatedRow, UPDATE_SUCCESS));
+        when(noteRepository.updateNote(any(Note.class))).thenReturn(returnedData);
+        //Act
+
+        noteViewModel.setNote(note);
+        Resource<Integer> returnedValue = liveDataTestUtil.getValue(noteViewModel.updateNote());
 
         //Assert
+        assertEquals(Resource.success(updatedRow, UPDATE_SUCCESS), returnedValue);
+    }
+
+    /*
+        update: don`t return a new row without observer
+     */
+
+    @Test
+    void dontReturnUpdateRowNumberWithoutObserver() throws Exception {
+        //Arrange
+        Note note = new Note(TestUtil.TEST_NOTE_1);
+
+        //Act
+        noteViewModel.setNote(note);
+
+        //Assert
+        verify(noteRepository, never()).updateNote(any(Note.class));
     }
 }
