@@ -23,6 +23,7 @@ import io.reactivex.internal.operators.single.SingleToFlowable;
 
 import static com.alexlearn.unittestingpractice.repository.NoteRepository.INSERT_SUCCESS;
 import static com.alexlearn.unittestingpractice.repository.NoteRepository.UPDATE_SUCCESS;
+import static com.alexlearn.unittestingpractice.ui.note.NoteViewModel.NO_CONTENT_ERROR;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -93,7 +94,8 @@ public class NoteViewModelTest {
         //Act
 
         noteViewModel.setNote(note);
-        Resource<Integer> returnedValue = liveDataTestUtil.getValue(noteViewModel.insertNote());
+        noteViewModel.setIsNewNote(true);
+        Resource<Integer> returnedValue = liveDataTestUtil.getValue(noteViewModel.saveNote());
 
         //Assert
         assertEquals(Resource.success(insertedRow, INSERT_SUCCESS), returnedValue);
@@ -150,7 +152,8 @@ public class NoteViewModelTest {
         //Act
 
         noteViewModel.setNote(note);
-        Resource<Integer> returnedValue = liveDataTestUtil.getValue(noteViewModel.updateNote());
+        noteViewModel.setIsNewNote(false);
+        Resource<Integer> returnedValue = liveDataTestUtil.getValue(noteViewModel.saveNote());
 
         //Assert
         assertEquals(Resource.success(updatedRow, UPDATE_SUCCESS), returnedValue);
@@ -170,5 +173,25 @@ public class NoteViewModelTest {
 
         //Assert
         verify(noteRepository, never()).updateNote(any(Note.class));
+    }
+
+    @Test
+    void saveNote_shouldAllowSave_returnFalse() throws Exception {
+        //Arrange
+        Note note = new Note(TestUtil.TEST_NOTE_1);
+        note.setContent(null);
+
+        //Act
+        noteViewModel.setNote(note);
+        noteViewModel.setIsNewNote(true);
+
+        //Assert
+        Exception exception = assertThrows(Exception.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                noteViewModel.saveNote();
+            }
+        });
+        assertEquals(NO_CONTENT_ERROR, exception.getMessage());
     }
 }
